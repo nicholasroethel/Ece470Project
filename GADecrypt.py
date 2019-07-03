@@ -9,7 +9,7 @@ import random
 def random_string(length):
     return ''.join(random.choice(string.ascii_letters) for m in range(length))
 
-def genRandom(n):
+def genRandom(crib,n):
 	wordlist = words.words()
 	randString = ''
 
@@ -30,12 +30,12 @@ def genRandom(n):
 		if (len(randString) + 1 + tmplen)<=n: #add to the string if possible
 			randString = randString + ' ' + tmpword 
 
-	return randString
+	return crib + " " + randString
 
-def evaluate(item):
-    item1 = genRandom(40)
-    item2 = genRandom(40)
-    item3 = random_string(40)
+def evaluate(crib, item):
+    item1 = genRandom(crib,40)
+    item2 = genRandom(crib,40)
+    item3 = random_string(40 + len(crib) + 1)
     item1 = [ord(c) for c in item1]
     item2 = [ord(c) for c in item2]
     item3 = [ord(c) for c in item3]
@@ -48,13 +48,14 @@ def evaluate(item):
         return 0
 
 def main():
+    crib = "potato"
     nltk.download('words')
     n = 50
-    randString = genRandom(n)
+    randString = genRandom(crib,n)
     print(randString)
     sum = 0
     for i in range(100):
-    	sum += evaluate(None)
+    	sum += evaluate(crib, None)
     print(sum/100)
   
 if __name__== "__main__":
