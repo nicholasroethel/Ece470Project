@@ -33,11 +33,11 @@ def genRandom(n):
 	return randString
 
 def evaluate(item):
-    item1 = genRandom(6)
-    item2 = genRandom(6)
+    item1 = genRandom(40)
+    item2 = genRandom(40)
     item3 = random_string(40)
-    item1 = [ord(c) for c in item1][:40]
-    item2 = [ord(c) for c in item2][:40]
+    item1 = [ord(c) for c in item1]
+    item2 = [ord(c) for c in item2]
     item3 = [ord(c) for c in item3]
 
     realcor = sklearn.metrics.matthews_corrcoef(item1,item2)
