@@ -7,10 +7,8 @@ def genRandom(n):
 	randString = ' '.join(sample(words.words(), n))
 	print(randString)
 
-
 def main():
   nltk.download('words')
-  print("Hello World!")
   n = 5
   genRandom(n)
   
