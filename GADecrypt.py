@@ -10,7 +10,26 @@ def random_string(length):
     return ''.join(random.choice(string.ascii_letters) for m in range(length))
 
 def genRandom(n):
-	randString = ' '.join(sample(words.words(), n))
+	wordlist = words.words()
+	randString = ''
+
+
+	while len(randString) < n: #keeps adding to randstring until its length n
+		#print(len(randString))
+
+		if ((len(randString)<1)  or (len(randString) > n-3)): #gets first part or resets to speed up probability of finding proper string length
+			randString =  ''
+			while(len(randString)<1):
+				tmpword = random.choice(wordlist)
+				if len(tmpword) < n:
+					randString = tmpword
+
+		tmpword = random.choice(wordlist)
+		tmplen = len(tmpword)
+
+		if (len(randString) + 1 + tmplen)<=n: #add to the string if possible
+			randString = randString + ' ' + tmpword 
+
 	return randString
 
 def evaluate(item):
@@ -30,9 +49,12 @@ def evaluate(item):
 
 def main():
     nltk.download('words')
+    n = 50
+    randString = genRandom(n)
+    print(randString)
     sum = 0
     for i in range(100):
-        sum += evaluate(None)
+    	sum += evaluate(None)
     print(sum/100)
   
 if __name__== "__main__":
