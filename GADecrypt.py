@@ -29,7 +29,7 @@ def evaluate(item):
         return 0
 
 def main():
-
+    nltk.download('words')
     sum = 0
     for i in range(100):
         sum += evaluate(None)
