@@ -1,6 +1,6 @@
 import nltk
+import sklearn
 import random
-import numpy as np
 from nltk.corpus import words
 from random import sample
 
@@ -21,9 +21,9 @@ def evaluate(item):
     item2 = [ord(c) for c in item2][:40]
     item3 = [ord(c) for c in item3]
 
-    realcor = np.corrcoef(item1,item2)[0][1]
-    fakecor = np.corrcoef(item1,item3)[0][1]
-    if(realcor > fakecor):
+    realcor = sklearn.metrics.matthews_corrcoef(item1,item2)
+    fakecor = sklearn.metrics.matthews_corrcoef(item1,item3)
+    if(abs(realcor) > abs(fakecor)):
         return 1
     else:
         return 0
