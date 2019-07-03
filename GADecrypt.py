@@ -9,6 +9,7 @@ def genRandom(n):
 
 
 def main():
+  nltk.download('words')
   print("Hello World!")
   n = 5
   genRandom(n)
