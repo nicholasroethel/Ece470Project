@@ -4,6 +4,7 @@ import random
 import numpy as np
 from nltk.corpus import words
 from random import sample
+from Config import get_config, print_usage
 
 import string
 import random
@@ -51,16 +52,17 @@ def evaluate(crib, item1):
 def convertToIntArray(item):
     return np.asarray([ord(c) for c in item])
 
-def main():
-    crib = "potato"
-    nltk.download('words')
-    n = 40
-    randString = genRandom(crib,n)
-    print(randString)
-    sum = 0
-    for i in range(100):
-    	print(evaluate(crib, genRandom(crib,40)))
-    print(sum/100)
+def main(config):
+  nltk.download('words')
+  sum = 0
+  for i in range(100):
+    print(evaluate(config.crib, genRandom(config.crib,config.message_len)))
+  print(sum/100)
   
 if __name__== "__main__":
-  main()
+  config, unparsed = get_config()
+  # If we have unparsed arguments, print usage and exit
+  if len(unparsed) > 0:
+      print_usage()
+      exit(1)
+  main(config)
