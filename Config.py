@@ -18,6 +18,7 @@ GA_args.add_argument("--key_len", type=int, default=10, help="Length of key to u
 GA_args.add_argument("--message_len",type=int, default=40, help="Length of message to use")
 GA_args.add_argument("--hamming_weight", type=float, default=1.0, help="Weight for the hamming score")
 GA_args.add_argument("--corr_weight",type=float,default=1.0,help="Weight for the correlation score")
+GA_args.add_argument("--pop_size", type=int,default=100,help="Inital size of the population to generate")
 
 
 def get_config():
