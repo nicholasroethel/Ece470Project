@@ -52,6 +52,13 @@ def crossover(item1,item2):
   crossoverPoint = random.randint(0,len(item1))
   return np.append(item1[:crossoverPoint],item2[crossoverPoint:]), np.append(item2[:crossoverPoint],item1[crossoverPoint:])
 
+def mutate(item):
+  randChar = ord(random.choice(string.ascii_letters))
+  position = random.randint(0,len(item))
+  item[position] = randChar
+  
+  return item
+
 #I think we should work with Int arrays instead of strings here, makes the correlation calculation easier and probably the encryption
 def convertToIntArray(item):
   return np.asarray([ord(c) for c in item])
@@ -69,6 +76,7 @@ def main(config):
   item1 = genRandom("",10)
   item2 = genRandom("",10)
   print(item1,item2)
+  print(convertIntArrayToString(item1), convertIntArrayToString(mutate(item1)))
   print(crossover(item1,item2))
   
   
