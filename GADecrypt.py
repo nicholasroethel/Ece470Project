@@ -1,6 +1,8 @@
 import nltk
 import sklearn
 import random
+import copy
+import math
 import numpy as np
 from nltk.corpus import words
 from random import sample
@@ -69,16 +71,45 @@ def convertIntArrayToString(item):
 def initPop(config):
   return [random_string(config.message_len) for i in range(config.pop_size)]
 
-def main(config):
-  population = initPop(config)
-  fitnesses = [evaluate(config.crib, item) for item in population]
+def repeatKey(key, stringlen):
+  n = stringlen/len(key)
+  times = int(n+1)
+  new = np.tile(key,times)
+  return new[:stringlen+1]
 
-  
-  item1 = genRandom("",10)
-  item2 = genRandom("",10)
-  print(item1,item2)
-  print(convertIntArrayToString(item1), convertIntArrayToString(mutate(item1)))
-  print(crossover(item1,item2))
+def encodeString(key,string):
+  return [key[i]+string[i]-97 for i in range(len(key))]
+
+def decodeString(key, string):
+  return [string[i]-key[i]+97 for i in range(len(key))]
+
+
+def main(config):
+  # population = initPop(config)
+  # fitnesses = [evaluate(config.crib, item) for item in population]
+
+  stringlen = 10 
+  keylen = 5
+
+  item1 = genRandom("",stringlen)
+  item2 = genRandom("",stringlen)
+
+  key = random_string(keylen)
+  repeatedKey = repeatKey(key, stringlen + len(config.crib))
+
+  testString = genRandom(config.crib,stringlen)
+  print(testString)
+
+  encodedString = encodeString(repeatedKey, testString)
+  print(encodedString)
+
+  decodedString = decodeString(repeatedKey, encodedString)
+  print(decodedString)
+
+
+  # print(item1,item2)
+  # print(convertIntArrayToString(item1), convertIntArrayToString(mutate(item1)))
+  # print(crossover(item1,item2))
   
   
 if __name__== "__main__":
