@@ -9,7 +9,7 @@ from Config import get_config, print_usage
 import string
 import random
 def random_string(length):
-  return convertToIntArray(''.join(random.choice(string.ascii_letters) for m in range(length)))
+  return convertToIntArray(''.join(random.choice(string.ascii_lowercase) for m in range(length)))
 
 def genRandom(crib,n):
 	wordlist = words.words()
@@ -32,7 +32,7 @@ def genRandom(crib,n):
 		if (len(randString) + 1 + tmplen)<=n: #add to the string if possible
 			randString = randString + ' ' + tmpword 
 
-	return convertToIntArray(crib + " " + randString)
+	return convertToIntArray((crib + " " + randString).lower())
 
 def evaluate(crib, item1):
   item2 = genRandom(crib,len(item1)-len(crib)-1)
@@ -53,7 +53,7 @@ def crossover(item1,item2):
   return np.append(item1[:crossoverPoint],item2[crossoverPoint:]), np.append(item2[:crossoverPoint],item1[crossoverPoint:])
 
 def mutate(item):
-  randChar = ord(random.choice(string.ascii_letters))
+  randChar = ord(random.choice(string.ascii_lowercase))
   position = random.randint(0,len(item))
   item[position] = randChar
   
@@ -73,6 +73,7 @@ def main(config):
   population = initPop(config)
   fitnesses = [evaluate(config.crib, item) for item in population]
 
+  
   item1 = genRandom("",10)
   item2 = genRandom("",10)
   print(item1,item2)
