@@ -8,6 +8,10 @@ from Config import get_config, print_usage
 
 import string
 import random
+
+englishString = ""
+nonenglishString = ""
+
 def random_string(length):
   return convertToIntArray(''.join(random.choice(string.ascii_lowercase) for m in range(length)))
 
@@ -35,13 +39,16 @@ def genRandom(crib,n):
 	return convertToIntArray((crib + " " + randString).lower())
 
 def evaluate(crib, item1):
-  item2 = genRandom(crib,len(item1)-len(crib)-1)
-  item3 = random_string(len(item1))
+  global englishString
+  global nonenglishString
+  if englishString == "":
+    englishString = genRandom(crib,len(item1)-len(crib)-1)
+    nonenglishString = random_string(len(item1))
 
   cribArray = convertToIntArray(crib)
 
-  realcor = sklearn.metrics.matthews_corrcoef(item1,item2)
-  fakecor = sklearn.metrics.matthews_corrcoef(item1,item3)
+  realcor = sklearn.metrics.matthews_corrcoef(item1,englishString)
+  fakecor = sklearn.metrics.matthews_corrcoef(item1,nonenglishString)
 
   phiScore = (abs(realcor) - abs(fakecor) + 1)/4
   hammingScore = np.sum(np.ones(len(crib))[cribArray==item1[:len(crib)]]) / (len(crib)*2)
