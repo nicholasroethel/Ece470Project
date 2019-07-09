@@ -10,6 +10,10 @@ from Config import get_config, print_usage
 
 import string
 import random
+
+englishString = ""
+nonenglishString = ""
+
 def random_string(length):
   return convertToIntArray(''.join(random.choice(string.ascii_lowercase) for m in range(length)))
 
@@ -37,16 +41,19 @@ def genRandom(crib,n):
 	return convertToIntArray((crib + " " + randString).lower())
 
 def evaluate(crib, item1):
-  item2 = genRandom(crib,len(item1)-len(crib)-1)
-  item3 = random_string(len(item1))
+  global englishString
+  global nonenglishString
+  if englishString == "":
+    englishString = genRandom(crib,len(item1)-len(crib)-1)
+    nonenglishString = random_string(len(item1))
 
   cribArray = convertToIntArray(crib)
 
-  realcor = sklearn.metrics.matthews_corrcoef(item1,item2)
-  fakecor = sklearn.metrics.matthews_corrcoef(item1,item3)
+  realcor = sklearn.metrics.matthews_corrcoef(item1,englishString)
+  fakecor = sklearn.metrics.matthews_corrcoef(item1,nonenglishString)
 
-  phiScore = abs(realcor) - abs(fakecor)
-  hammingScore = np.sum(np.ones(len(crib))[cribArray==item1[:len(crib)]]) / len(crib)
+  phiScore = (abs(realcor) - abs(fakecor) + 1)/4
+  hammingScore = np.sum(np.ones(len(crib))[cribArray==item1[:len(crib)]]) / (len(crib)*2)
   
   return phiScore + hammingScore
 
@@ -56,7 +63,7 @@ def crossover(item1,item2):
 
 def mutate(item):
   randChar = ord(random.choice(string.ascii_lowercase))
-  position = random.randint(0,len(item))
+  position = random.randint(0,len(item)-1)
   item[position] = randChar
   
   return item
@@ -69,7 +76,11 @@ def convertIntArrayToString(item):
   return ''.join([chr(i) for i in item])
 
 def initPop(config):
-  return [random_string(config.message_len) for i in range(config.pop_size)]
+  return np.asarray([random_string(config.message_len) for i in range(config.pop_size)])
+
+def calcFitness(items,config):
+  fitnesses = np.asarray([evaluate(config.crib, item) for item in items])
+  return fitnesses / fitnesses.sum()
 
 def repeatKey(key, stringlen):
   n = stringlen/len(key)
@@ -85,8 +96,25 @@ def decodeString(key, string):
 
 
 def main(config):
-  # population = initPop(config)
-  # fitnesses = [evaluate(config.crib, item) for item in population]
+
+  population = initPop(config)
+  fitnesses = calcFitness(population,config)
+  
+  for i in range(config.max_gen):
+    print("Gen Number = "+ str(i))
+    parents = population[np.random.choice(len(fitnesses),int(len(fitnesses)* config.survival_rate),False,fitnesses),:]
+    population = parents
+    while len(population)<config.pop_size:
+      child1,child2 = crossover(parents[np.random.choice(len(parents)),:],parents[np.random.choice(len(parents)),:])
+      if random.random() < config.mutate_chance:
+        child1 = mutate(child1)
+      if random.random() < config.mutate_chance:
+        child2 = mutate(child2)
+      population = np.append(population,[child1,child2],0)
+    print("Max fitness:")
+    fitnesses = calcFitness(population,config)
+    print(fitnesses.max())
+  print(fitnesses.max())
 
   stringlen = 10 
   keylen = 5
