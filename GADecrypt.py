@@ -40,13 +40,14 @@ def genRandom(crib,n):
 
 	return convertToIntArray((crib + " " + randString).lower())
 
-def evaluate(crib, item1):
+def evaluate(crib, item,encryptedMessage):
   global englishString
   global nonenglishString
   if englishString == "":
-    englishString = genRandom(crib,len(item1)-len(crib)-1)
-    nonenglishString = random_string(len(item1))
+    englishString = genRandom(crib,len(encryptedMessage)-len(crib)-1)
+    nonenglishString = random_string(len(encryptedMessage))
 
+  item1 = decodeString(item,encryptedMessage)
   cribArray = convertToIntArray(crib)
 
   realcor = sklearn.metrics.matthews_corrcoef(item1,englishString)
@@ -68,7 +69,6 @@ def mutate(item):
   
   return item
 
-#I think we should work with Int arrays instead of strings here, makes the correlation calculation easier and probably the encryption
 def convertToIntArray(item):
   return np.asarray([ord(c) for c in item])
 
@@ -76,33 +76,34 @@ def convertIntArrayToString(item):
   return ''.join([chr(i) for i in item])
 
 def initPop(config):
-  return np.asarray([random_string(config.message_len) for i in range(config.pop_size)])
+  return np.asarray([random_string(config.key_len) for i in range(config.pop_size)])
 
-def calcFitness(items,config):
-  fitnesses = np.asarray([evaluate(config.crib, item) for item in items])
-  return fitnesses / fitnesses.sum()
+def calcFitness(items,config,encryptedMessage):
+  return np.asarray([evaluate(config.crib, item,encryptedMessage) for item in items])
 
 def repeatKey(key, stringlen):
   n = stringlen/len(key)
   times = int(n+1)
   new = np.tile(key,times)
-  return new[:stringlen+1]
+  return new[:stringlen]
 
 def encodeString(key,string):
-  return [key[i]+string[i]-97 for i in range(len(key))]
+  return ((string-97)+ (repeatKey(key,len(string))-97))%26 +97 
 
 def decodeString(key, string):
-  return [string[i]-key[i]+97 for i in range(len(key))]
-
+  return ((string-97)-(repeatKey(key,len(string))-97))%26 +97
 
 def main(config):
+  initialMessage = genRandom(config.crib,config.message_len)
+  initialKey = random_string(config.key_len)
+  encryptedMessage = encodeString(initialKey,initialMessage)
 
   population = initPop(config)
-  fitnesses = calcFitness(population,config)
+  fitnesses = calcFitness(population,config,encryptedMessage)
   
   for i in range(config.max_gen):
     print("Gen Number = "+ str(i))
-    parents = population[np.random.choice(len(fitnesses),int(len(fitnesses)* config.survival_rate),False,fitnesses),:]
+    parents = population[np.random.choice(len(fitnesses),int(len(fitnesses)* config.survival_rate),False,fitnesses/fitnesses.sum()),:]
     population = parents
     while len(population)<config.pop_size:
       child1,child2 = crossover(parents[np.random.choice(len(parents)),:],parents[np.random.choice(len(parents)),:])
@@ -112,33 +113,10 @@ def main(config):
         child2 = mutate(child2)
       population = np.append(population,[child1,child2],0)
     print("Max fitness:")
-    fitnesses = calcFitness(population,config)
+    fitnesses = calcFitness(population,config,encryptedMessage)
     print(fitnesses.max())
-  print(fitnesses.max())
-
-  stringlen = 10 
-  keylen = 5
-
-  item1 = genRandom("",stringlen)
-  item2 = genRandom("",stringlen)
-
-  key = random_string(keylen)
-  repeatedKey = repeatKey(key, stringlen + len(config.crib))
-
-  testString = genRandom(config.crib,stringlen)
-  print(testString)
-
-  encodedString = encodeString(repeatedKey, testString)
-  print(encodedString)
-
-  decodedString = decodeString(repeatedKey, encodedString)
-  print(decodedString)
-
-
-  # print(item1,item2)
-  # print(convertIntArrayToString(item1), convertIntArrayToString(mutate(item1)))
-  # print(crossover(item1,item2))
-  
+  print(convertIntArrayToString(initialMessage))
+  print(convertIntArrayToString(decodeString(population[fitnesses.argmax()],encryptedMessage)))
   
 if __name__== "__main__":
   config, unparsed = get_config()
