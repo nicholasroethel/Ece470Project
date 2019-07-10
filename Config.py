@@ -22,6 +22,9 @@ GA_args.add_argument("--message_len",type=int, default=500, help="Length of mess
 GA_args.add_argument("--hamming_weight", type=float, default=1.0, help="Weight for the hamming score")
 GA_args.add_argument("--corr_weight",type=float,default=1.0,help="Weight for the correlation score")
 GA_args.add_argument("--pop_size", type=int,default=100,help="Inital size of the population to generate")
+GA_args.add_argument("--convergence_number", type=int,default=4,help="Number of repeated values needed to end the GA")
+GA_args.add_argument("--convergence_threshold", type=float,default=.7,help="Threshold for the fitness value to reach before it tests to end the GA")
+
 
 
 def get_config():

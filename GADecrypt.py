@@ -88,15 +88,20 @@ def repeatKey(key, stringlen):
   return new[:stringlen]
 
 def encodeString(key,string):
-  return ((string-97)+ (repeatKey(key,len(string))-97))%26 +97 
+  string[string == 32] =123
+  return ((string-97)+ (repeatKey(key,len(string))-97))%27 +97 
 
 def decodeString(key, string):
-  return ((string-97)-(repeatKey(key,len(string))-97))%26 +97
+  decodedString = ((string-97)-(repeatKey(key,len(string))-97))%27 +97
+  decodedString[decodedString ==123] =32
+  return decodedString
 
 def main(config):
   initialMessage = genRandom(config.crib,config.message_len)
   initialKey = random_string(config.key_len)
-  encryptedMessage = encodeString(initialKey,initialMessage)
+  encryptedMessage = encodeString(initialKey,initialMessage.copy())
+
+  maxFitnesses = []
 
   population = initPop(config)
   fitnesses = calcFitness(population,config,encryptedMessage)
@@ -114,7 +119,11 @@ def main(config):
       population = np.append(population,[child1,child2],0)
     print("Max fitness:")
     fitnesses = calcFitness(population,config,encryptedMessage)
+    maxFitnesses.append(fitnesses.max())
     print(fitnesses.max())
+    if i > config.convergence_number:
+      if np.average(maxFitnesses[-1*config.convergence_number:]) == maxFitnesses[-1] and maxFitnesses[-1] > config.convergence_threshold:
+        break
   print(convertIntArrayToString(initialMessage))
   print(convertIntArrayToString(decodeString(population[fitnesses.argmax()],encryptedMessage)))
   
