@@ -18,27 +18,27 @@ def random_string(length):
   return convertToIntArray(''.join(random.choice(string.ascii_lowercase) for m in range(length)))
 
 def genRandom(crib,n):
-  wordlist = words.words()
-  randString = ''
+	wordlist = words.words()
+	randString = ''
 
 
-  while len(randString) < n: #keeps adding to randstring until its length n
-    #print(len(randString))
+	while len(randString) < n: #keeps adding to randstring until its length n
+		#print(len(randString))
 
-    if ((len(randString)<1)  or (len(randString) > n-3)): #gets first part or resets to speed up probability of finding proper string length
-      randString =  ''
-      while(len(randString)<1):
-        tmpword = random.choice(wordlist)
-        if len(tmpword) < n:
-          randString = tmpword
+		if ((len(randString)<1)  or (len(randString) > n-3)): #gets first part or resets to speed up probability of finding proper string length
+			randString =  ''
+			while(len(randString)<1):
+				tmpword = random.choice(wordlist)
+				if len(tmpword) < n:
+					randString = tmpword
 
-    tmpword = random.choice(wordlist)
-    tmplen = len(tmpword)
+		tmpword = random.choice(wordlist)
+		tmplen = len(tmpword)
 
-    if (len(randString) + 1 + tmplen)<=n: #add to the string if possible
-      randString = randString + ' ' + tmpword 
+		if (len(randString) + 1 + tmplen)<=n: #add to the string if possible
+			randString = randString + ' ' + tmpword 
 
-  return convertToIntArray((crib + " " + randString).lower())
+	return convertToIntArray((crib + " " + randString).lower())
 
 def evaluate(crib, item,encryptedMessage):
   global englishString
@@ -143,6 +143,7 @@ def main(config):
   fitnesses = calcGenerationsFitness(population, config, initialMessage)
   
   for i in range(config.max_gen):
+    print("Gen Number = "+ str(i))
     parents = population[np.random.choice(len(fitnesses),int(len(fitnesses)* config.survival_rate),False,fitnesses/fitnesses.sum()),:]
     population = parents
     while len(population)<config.pop_size:
