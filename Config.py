@@ -24,6 +24,7 @@ GA_args.add_argument("--corr_weight",type=float,default=1.0,help="Weight for the
 GA_args.add_argument("--pop_size", type=int,default=100,help="Inital size of the population to generate")
 GA_args.add_argument("--convergence_number", type=int,default=4,help="Number of repeated values needed to end the GA")
 GA_args.add_argument("--convergence_threshold", type=float,default=.7,help="Threshold for the fitness value to reach before it tests to end the GA")
+GA_args.add_argument("--runs_per_value", type=int,default=5,help="Number of runs per value when generating a graph")
 
 
 

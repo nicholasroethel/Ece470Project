@@ -7,6 +7,7 @@ import numpy as np
 from nltk.corpus import words
 from random import sample
 from Config import get_config, print_usage
+import matplotlib.pyplot as plt
 
 import string
 import random
@@ -97,6 +98,41 @@ def decodeString(key, string):
   return decodedString
 
 def main(config):
+  values = [10,30,50,70,90]
+  resultsSuccess = []
+  resultsGen = []
+  for i in values:
+    print(i)
+    config.pop_size = i
+    tempSuccess = []
+    tempGen = []
+    for j in range(config.runs_per_value):
+      success , gen = runGA(config)
+      tempSuccess.append(success)
+      tempGen.append(gen)
+    print(np.average(tempSuccess))
+    print(np.average(tempGen))
+    resultsSuccess.append(np.average(tempSuccess))
+    resultsGen.append(np.average(tempGen))
+  figure, plt1 = plt.subplots()
+
+  plt1.set_xlabel("Population Size")
+  plt1.set_ylabel("Generations",color='tab:orange')
+  plt1.plot(values,resultsGen,color='tab:orange')
+  plt1.tick_params(axis="y",labelcolor='tab:orange')
+
+  plt2 = plt1.twinx()
+  plt2.set_ylabel("Success Rate",color='tab:blue')
+  plt2.plot(values,resultsSuccess,color='tab:blue')
+  plt2.tick_params(axis="y",labelcolor='tab:blue')
+
+  figure.tight_layout()
+  plt.legend(["Generations","Success Rate"])
+  plt.title("Population SIze")
+  plt.show()
+
+  
+def runGA(config):
   initialMessage = genRandom(config.crib,config.message_len)
   initialKey = random_string(config.key_len)
   encryptedMessage = encodeString(initialKey,initialMessage.copy())
@@ -106,8 +142,8 @@ def main(config):
   population = initPop(config)
   fitnesses = calcFitness(population,config,encryptedMessage)
   
+  endGen = config.max_gen
   for i in range(config.max_gen):
-    print("Gen Number = "+ str(i))
     parents = population[np.random.choice(len(fitnesses),int(len(fitnesses)* config.survival_rate),False,fitnesses/fitnesses.sum()),:]
     population = parents
     while len(population)<config.pop_size:
@@ -117,15 +153,13 @@ def main(config):
       if random.random() < config.mutate_chance:
         child2 = mutate(child2)
       population = np.append(population,[child1,child2],0)
-    print("Max fitness:")
     fitnesses = calcFitness(population,config,encryptedMessage)
     maxFitnesses.append(fitnesses.max())
-    print(fitnesses.max())
     if i > config.convergence_number:
       if np.average(maxFitnesses[-1*config.convergence_number:]) == maxFitnesses[-1] and maxFitnesses[-1] > config.convergence_threshold:
+        endGen = i
         break
-  print(convertIntArrayToString(initialMessage))
-  print(convertIntArrayToString(decodeString(population[fitnesses.argmax()],encryptedMessage)))
+  return decodeString(population[fitnesses.argmax()],encryptedMessage) == initialMessage, endGen
   
 if __name__== "__main__":
   config, unparsed = get_config()
