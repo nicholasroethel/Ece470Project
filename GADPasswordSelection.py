@@ -126,7 +126,7 @@ def loopLogic(key,config,initialMessage):
       if np.average(maxFitnesses[-1*config.convergence_number:]) == maxFitnesses[-1] and maxFitnesses[-1] > config.convergence_threshold:
         maxgen = i
         break
-  print(population[fitnesses.argmax()])
+  print(convertIntArrayToString(population[fitnesses.argmax()]))
   return maxgen
 
 def calcGenerationsFitness(population,config,initialMessage):
@@ -137,7 +137,6 @@ def calcGenerationsFitness(population,config,initialMessage):
 
 def main(config):
   initialMessage = genRandom(config.crib,config.message_len)
-  initialKey = random_string(config.key_len)
   maxFitnesses = []
   population = initPop(config)
   fitnesses = calcGenerationsFitness(population, config, initialMessage)
@@ -154,7 +153,7 @@ def main(config):
         child2 = mutate(child2)
       population = np.append(population,[child1,child2],0)
     #print("Max fitness:")
-    fitnesses = calcFitness(population,config,encryptedMessage)
+    fitnesses = calcGenerationsFitness(population,config)
     maxFitnesses.append(fitnesses.max())
     #print(fitnesses.max())
     if i > config.convergence_number:
