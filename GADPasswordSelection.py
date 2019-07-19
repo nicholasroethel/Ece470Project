@@ -126,6 +126,7 @@ def loopLogic(key,config,initialMessage):
       if np.average(maxFitnesses[-1*config.convergence_number:]) == maxFitnesses[-1] and maxFitnesses[-1] > config.convergence_threshold:
         maxgen = i
         break
+  print(population[fitnesses.argmax()])
   return maxgen
 
 def calcGenerationsFitness(population,config,initialMessage):
