@@ -127,7 +127,6 @@ def main(config):
   plt2.tick_params(axis="y",labelcolor='tab:blue')
 
   figure.tight_layout()
-  plt.legend(["Generations","Success Rate"])
   plt.title("Population SIze")
   plt.show()
 
