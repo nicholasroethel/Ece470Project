@@ -134,7 +134,7 @@ def calcGenerationsFitness(population,config,initialMessage):
   gens = []
   for key in population:
     gens.append(loopLogic(key,config,initialMessage))
-  return gens
+  return np.asarray(gens)
 
 def main(config):
   initialMessage = genRandom(config.crib,config.message_len)
