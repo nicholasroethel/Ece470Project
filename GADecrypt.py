@@ -41,7 +41,7 @@ def genRandom(crib,n):
 
 	return convertToIntArray((crib + " " + randString).lower())
 
-def evaluate(crib, item,encryptedMessage):
+def evaluate(config, crib, item, encryptedMessage):
   global englishString
   global nonenglishString
   if englishString == "":
@@ -57,7 +57,7 @@ def evaluate(crib, item,encryptedMessage):
   phiScore = (abs(realcor) - abs(fakecor) + 1)/4
   hammingScore = np.sum(np.ones(len(crib))[cribArray==item1[:len(crib)]]) / (len(crib)*2)
   
-  return phiScore + hammingScore
+  return np.power(phiScore + hammingScore,config.bias_exponent)
 
 def crossover(item1,item2):
   crossoverPoint = random.randint(0,len(item1))
@@ -80,7 +80,7 @@ def initPop(config):
   return np.asarray([random_string(config.key_len) for i in range(config.pop_size)])
 
 def calcFitness(items,config,encryptedMessage):
-  return np.asarray([evaluate(config.crib, item,encryptedMessage) for item in items])
+  return np.asarray([evaluate(config,config.crib, item,encryptedMessage) for item in items])
 
 def repeatKey(key, stringlen):
   n = stringlen/len(key)
@@ -98,12 +98,12 @@ def decodeString(key, string):
   return decodedString
 
 def main(config):
-  values = [10,30,50,70,90]
+  values = [1,2,3,4,5]
   resultsSuccess = []
   resultsGen = []
   for i in values:
     print(i)
-    config.pop_size = i
+    config.bias_exponen = i
     tempSuccess = []
     tempGen = []
     for j in range(config.runs_per_value):
@@ -112,11 +112,12 @@ def main(config):
       tempGen.append(gen)
     print(np.average(tempSuccess))
     print(np.average(tempGen))
+  
     resultsSuccess.append(np.average(tempSuccess))
     resultsGen.append(np.average(tempGen))
   figure, plt1 = plt.subplots()
 
-  plt1.set_xlabel("Population Size")
+  plt1.set_xlabel("Bias Factor")
   plt1.set_ylabel("Generations",color='tab:orange')
   plt1.plot(values,resultsGen,color='tab:orange')
   plt1.tick_params(axis="y",labelcolor='tab:orange')
@@ -127,7 +128,7 @@ def main(config):
   plt2.tick_params(axis="y",labelcolor='tab:blue')
 
   figure.tight_layout()
-  plt.title("Population SIze")
+  plt.title("Bias Factor")
   plt.show()
 
   
@@ -155,7 +156,7 @@ def runGA(config):
     fitnesses = calcFitness(population,config,encryptedMessage)
     maxFitnesses.append(fitnesses.max())
     if i > config.convergence_number:
-      if np.average(maxFitnesses[-1*config.convergence_number:]) == maxFitnesses[-1] and maxFitnesses[-1] > config.convergence_threshold:
+      if np.average(maxFitnesses[-1*config.convergence_number:]) == maxFitnesses[-1] and maxFitnesses[-1] > config.convergence_threshold: 
         endGen = i
         break
   return decodeString(population[fitnesses.argmax()],encryptedMessage) == initialMessage, endGen
