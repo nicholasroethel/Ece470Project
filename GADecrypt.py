@@ -15,9 +15,11 @@ import random
 englishString = ""
 nonenglishString = ""
 
+#Generates a string of random charcters of fixed length
 def random_string(length):
   return convertToIntArray(''.join(random.choice(string.ascii_lowercase) for m in range(length)))
 
+#Generates a string of random english words of fixed length
 def genRandom(crib,n):
 	wordlist = words.words()
 	randString = ''
@@ -41,6 +43,7 @@ def genRandom(crib,n):
 
 	return convertToIntArray((crib + " " + randString).lower())
 
+#Calculates fitness score for given item
 def evaluate(config, crib, item, encryptedMessage):
   global englishString
   global nonenglishString
@@ -59,10 +62,12 @@ def evaluate(config, crib, item, encryptedMessage):
   
   return np.power(phiScore + hammingScore,config.bias_exponent)
 
+#Returns the 2 crossover products of the items passed in
 def crossover(item1,item2):
   crossoverPoint = random.randint(0,len(item1))
   return np.append(item1[:crossoverPoint],item2[crossoverPoint:]), np.append(item2[:crossoverPoint],item1[crossoverPoint:])
 
+#Returns a mutation of the item passed in
 def mutate(item):
   randChar = ord(random.choice(string.ascii_lowercase))
   position = random.randint(0,len(item)-1)
@@ -70,40 +75,48 @@ def mutate(item):
   
   return item
 
+#Converts string to int array of ascii value
 def convertToIntArray(item):
   return np.asarray([ord(c) for c in item])
 
+#Converts int array of ascii values to string
 def convertIntArrayToString(item):
   return ''.join([chr(i) for i in item])
 
+#returns a population of random strings
 def initPop(config):
   return np.asarray([random_string(config.key_len) for i in range(config.pop_size)])
 
+#generates an array of fitness scores for an array of given items
 def calcFitness(items,config,encryptedMessage):
   return np.asarray([evaluate(config,config.crib, item,encryptedMessage) for item in items])
 
+#helper function to tile key used for vignere encrytption
 def repeatKey(key, stringlen):
   n = stringlen/len(key)
   times = int(n+1)
   new = np.tile(key,times)
   return new[:stringlen]
 
+#encodes int array using a vignere cipher 
 def encodeString(key,string):
   string[string == 32] =123
   return ((string-97)+ (repeatKey(key,len(string))-97))%27 +97 
 
+#decodes an int array using a vignere cipher
 def decodeString(key, string):
   decodedString = ((string-97)-(repeatKey(key,len(string))-97))%27 +97
   decodedString[decodedString ==123] =32
   return decodedString
 
+#Runs GA with diffrent values for given parameter and generates graph based on the result
 def main(config):
-  values = [1,2,3,4,5]
+  values = [1,2,3,4,5] #Values to use for parameter testing
   resultsSuccess = []
   resultsGen = []
   for i in values:
     print(i)
-    config.bias_exponen = i
+    config.bias_exponen = i #Parameter to test
     tempSuccess = []
     tempGen = []
     for j in range(config.runs_per_value):
@@ -131,7 +144,8 @@ def main(config):
   plt.title("Bias Factor")
   plt.show()
 
-  
+
+#Contains the actual GA code
 def runGA(config):
   initialMessage = genRandom(config.crib,config.message_len)
   initialKey = random_string(config.key_len)
@@ -155,10 +169,9 @@ def runGA(config):
       population = np.append(population,[child1,child2],0)
     fitnesses = calcFitness(population,config,encryptedMessage)
     maxFitnesses.append(fitnesses.max())
-    if i > config.convergence_number:
-      if np.average(maxFitnesses[-1*config.convergence_number:]) == maxFitnesses[-1] and maxFitnesses[-1] > config.convergence_threshold: 
-        endGen = i
-        break
+    if np.array_equal(population[fitnesses.argmax()],initialKey):
+      endGen = i
+      break
   return decodeString(population[fitnesses.argmax()],encryptedMessage) == initialMessage, endGen
   
 if __name__== "__main__":
