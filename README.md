@@ -1,3 +1,5 @@
+This project contains a genetic algorithm that attempts to decrypt a cipher text that hsa been encoded using a Vignere Cipher. 
+
 Our code is contained in GADecrypt, it is currently setup to test parameters.
 
 To run:
